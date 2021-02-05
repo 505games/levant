@@ -4,6 +4,11 @@
  - cd $env:GOPATH\src\github.com\505games\levant\
  - go install
  - find levant.exe in $env:GOPATH\bin
+- Build Linux binaries (on a Windows host):
+ - go get github.com/505games/levant
+ - cd $env:GOPATH\src\github.com\505games\levant\
+ - $env:GOOS="linux"; $env:GOARCH="arm64"; go install
+ - find levant.exe in $env:GOPATH\bin
  
 # Levant
 
