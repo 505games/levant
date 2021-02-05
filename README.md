@@ -9,6 +9,7 @@
   - cd $env:GOPATH\src\github.com\505games\levant\
   - $env:GOOS="linux"; $env:GOARCH="arm64"; go install
   - find levant.exe in $env:GOPATH\bin
+  - more platforms are doable as well: https://www.digitalocean.com/community/tutorials/how-to-build-go-executables-for-multiple-platforms-on-ubuntu-16-04
  
 # Levant
 
