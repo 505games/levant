@@ -1,4 +1,20 @@
-## 0.3.0 (unreleased)
+## UNRELEASED 
+
+IMPROVEMENTS: 
+ * render: when rendering, send logging to stderr if stdout is not a terminal [[GH-386](https://github.com/hashicorp/levant/pull/386)]
+
+## 0.3.0-beta1 (November 24, 2020)
+
+BUG FIXES:
+ * cli: Fixed panic when dispatching a job. [[GH-348](https://github.com/hashicorp/levant/pull/348)]
+ * status-checker: Pass the namespace to the query options when calling the Nomad API [[GH-356](https://github.com/hashicorp/levant/pull/356)]
+ * template: Fixed issue with default variables file not being used. [[GH-353](https://github.com/hashicorp/levant/pull/353)]
+
+IMPROVEMENTS:
+ * build: Updated Nomad dependency to 1.0.0. [[GH-370](https://github.com/hashicorp/levant/pull/370)]
+ * cli: Added `log-level` and `log-format` flags to render command. [[GH-346](https://github.com/hashicorp/levant/pull/346)]
+ * template: Added [sprig](https://github.com/Masterminds/sprig) template functions. [[GH-347](https://github.com/hashicorp/levant/pull/347)]
+ * template: Added `spewDump` and `spewPrintf` functions for easier debugging. [[GH-344](https://github.com/hashicorp/levant/pull/344)]
 
 ## 0.2.9 (27 December 2019)
 

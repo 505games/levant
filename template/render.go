@@ -9,29 +9,29 @@ import (
 
 	"github.com/hashicorp/levant/client"
 	"github.com/hashicorp/levant/helper"
-	"github.com/hashicorp/levant/template/jobspec"
 	nomad "github.com/hashicorp/nomad/api"
-	"github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/nomad/jobspec"
+	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/configs/hcl2shim"
 	"github.com/rs/zerolog/log"
 	yaml "gopkg.in/yaml.v2"
 )
 
 // RenderJob takes in a template and variables performing a render of the
 // template followed by Nomad jobspec parse.
-func RenderJob(templateFile string, variableFiles []string, addr string, flagVars *map[string]string) (job *nomad.Job, err error) {
+func RenderJob(templateFile string, variableFiles []string, addr string, flagVars *map[string]interface{}) (job *nomad.Job, err error) {
 	var tpl *bytes.Buffer
 	tpl, err = RenderTemplate(templateFile, variableFiles, addr, flagVars)
 	if err != nil {
 		return
 	}
 
-	job, err = jobspec.Parse(tpl)
-	return
+	return jobspec.Parse(tpl)
 }
 
 // RenderTemplate is the main entry point to render the template based on the
 // passed variables file.
-func RenderTemplate(templateFile string, variableFiles []string, addr string, flagVars *map[string]string) (tpl *bytes.Buffer, err error) {
+func RenderTemplate(templateFile string, variableFiles []string, addr string, flagVars *map[string]interface{}) (tpl *bytes.Buffer, err error) {
 
 	t := &tmpl{}
 	t.flagVariables = flagVars
@@ -113,18 +113,21 @@ func (t *tmpl) parseJSONVars(variableFile string) (variables map[string]interfac
 	return variables, nil
 }
 
-func (t *tmpl) parseTFVars(variableFile string) (variables map[string]interface{}, err error) {
+func (t *tmpl) parseTFVars(variableFile string) (map[string]interface{}, error) {
 
-	c := &config.Config{}
-	if c, err = config.LoadFile(variableFile); err != nil {
-		return
+	tfParser := configs.NewParser(nil)
+	loadedFile, loadDiags := tfParser.LoadConfigFile(variableFile)
+	if loadDiags != nil && loadDiags.HasErrors() {
+		return nil, loadDiags
+	}
+	if loadedFile == nil {
+		return nil, fmt.Errorf("hcl returned nil file")
 	}
 
-	variables = make(map[string]interface{})
-	for _, variable := range c.Variables {
-		variables[variable.Name] = variable.Default
+	variables := make(map[string]interface{})
+	for _, variable := range loadedFile.Variables {
+		variables[variable.Name] = hcl2shim.ConfigValueFromHCL2(variable.Default)
 	}
-
 	return variables, nil
 }
 
@@ -139,7 +142,6 @@ func (t *tmpl) parseYAMLVars(variableFile string) (variables map[string]interfac
 	if err = yaml.Unmarshal(yamlFile, &variables); err != nil {
 		return
 	}
-
 	return variables, nil
 }
 
